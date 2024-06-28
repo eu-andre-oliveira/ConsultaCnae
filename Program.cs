@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Diagnostics.Metrics;
+using System.Net.Http.Json;
 
 namespace ConsultaCnae
 {
@@ -12,19 +13,35 @@ namespace ConsultaCnae
 
         public static async Task Main(string[] args)
         {
-            string cnpj = "00000000000191"; // Insira o CNPJ desejado
-            var empresa = await ConsultarCnpj(cnpj);
+            int count = 0;
+            List<string> cnpjs = new List<string>() { "33014556009819", "00000000000191", "20250105000106", "50441644000193" };
+            foreach (var cnpj in cnpjs)
+            {
 
-            if (empresa != null && empresa.atividade_principal.Length > 0)
-            {
-                var atividadePrincipal = empresa.atividade_principal[0];
-                Console.WriteLine($"CNPJ: 00000000000191");
-                Console.WriteLine($"CNAE: {atividadePrincipal.code}");
-                Console.WriteLine($"Descrição: {atividadePrincipal.text}");
-            }
-            else
-            {
-                Console.WriteLine("Atividade principal não encontrada ou erro na consulta.");
+
+                //string cnpj = "00000000000191"; // Insira o CNPJ desejado
+                if (count < 3)
+                    count++;
+                else
+                {
+                    count = 0;
+                    Thread.Sleep(60000);
+                }
+
+
+                var empresa = await ConsultarCnpj(cnpj);
+
+                if (empresa != null && empresa.atividade_principal.Length > 0)
+                {
+                    var atividadePrincipal = empresa.atividade_principal[0];
+                    Console.WriteLine($"CNPJ: {cnpj}");
+                    Console.WriteLine($"CNAE: {atividadePrincipal.code}");
+                    Console.WriteLine($"Descrição: {atividadePrincipal.text}");
+                }
+                else
+                {
+                    Console.WriteLine("Atividade principal não encontrada ou erro na consulta.");
+                }
             }
         }
 
